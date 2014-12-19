@@ -6,10 +6,9 @@ class StitchDeviceAdj:
         self.port = port
 
 class StitchDevice:
-    def __init__(self, device_id, ip6_addr, prefix_len):
+    def __init__(self, device_id, ip6_addr):
         self.device_id = device_id
-        self.ip6_addr = ip6_addr
-        self.prefix_len = prefix_len
+        self.ip6_addr = IPNetwork(ip6_addr)
         self.whitelist = {}
 
 
@@ -25,6 +24,16 @@ class StitchDevice:
                 self.whitelist[device.device_it] = device
         except TypeError as e:
             print "Error using device handle %s" % (e)
+
+    def set_ip_addr(self, ip_addr):
+        self.ip6_addr = IPNetwork(ip_addr)
+
+    def set_device_id(self, device_id):
+        self.device_id = device_id
+
+    def set_whilelist(self, whitelist):
+        self.whitelist = whitelist
+        
 
     def set_device_adj(self, adj):
         if type(adj) is StitchDeviceAdj:
