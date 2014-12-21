@@ -1,4 +1,4 @@
-import netaddr
+import netaddr as net_ip
 
 class StitchDeviceAdj:
     def __init__(self, ip_addr, port):
@@ -8,7 +8,7 @@ class StitchDeviceAdj:
 class StitchDevice:
     def __init__(self, device_id, ip6_addr):
         self.device_id = device_id
-        self.ip6_addr = IPNetwork(ip6_addr)
+        self.ip6_addr = net_ip.IPNetwork(ip6_addr)
         self.whitelist = {}
 
 
@@ -26,12 +26,12 @@ class StitchDevice:
             print "Error using device handle %s" % (e)
 
     def set_ip_addr(self, ip_addr):
-        self.ip6_addr = IPNetwork(ip_addr)
+        self.ip6_addr = net_ip.IPNetwork(ip_addr)
 
     def set_device_id(self, device_id):
         self.device_id = device_id
 
-    def set_whilelist(self, whitelist):
+    def set_whitelist(self, whitelist):
         self.whitelist = whitelist
         
 

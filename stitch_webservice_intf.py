@@ -2,6 +2,7 @@ import os
 import threading
 import netaddr
 import json
+import socket
 from click_intf import StitchClick
 from stitch_device import StitchDevice
 
@@ -16,29 +17,34 @@ class StitchWebService (threading.Thread):
         self.WHITELIST_FIELD = "whitelist"
         self.end = "Stitch-msg-end"
         self.stitch_dp = stitch_dp
+        self.stitch_device_table = stitch_device_table
 
     def update_device_in_dp(self, device):
         #Generate command strings to update the stitch DP.
+        return None
 
     def handle_msg(self, json_data):
-        device_dic = json.load(json_data):
+        device_dic = json.loads(json_data)
         try:
             device_id = device_dic[self.DEVICE_ID_FIELD]
             ip_addr = device_dic[self.IP_ADDR_FIELD]
-            whilte_list = device_dic[self.WHITELIST_FIELD]
+            white_list = device_dic[self.WHITELIST_FIELD]
+            print "Received device info: device_id:%s, ip_addr:%s" % (device_id,
+            ip_addr)
         except AttributeError as e:
             print "Looks a like a problem with the JSON message:%s" % (e)
             return
         #check if the device exists.
-        if (device = stitch_device_table.get_device(device_id)) is not None:
+        device = self.stitch_device_table.get_device(device_id)
+        if (device is not None):
             #update the IP address of the device 
             device.set_ip_addr(ip_addr)
             device.set_device_id(device_id)
-            device.set_whitelist(whitelist)
+            device.set_whitelist(white_list)
         else:
             device = StitchDevice(device_id = device_id,\
                 ip6_addr = ip_addr)
-            device.set_whitelist(whitelist)
+            device.set_whitelist(white_list)
         self.update_device_in_dp(device) 
         
 
@@ -46,25 +52,38 @@ class StitchWebService (threading.Thread):
     def run(self):
         #open the TCP web service port. We might need to convert it to an SSL
         #socket at a later date.
-        self.web_s = socket.socket(socket.AF_INET, socket.SOCK_STREAM
+        self.web_s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
-            self.web_s.connect((ip_addr, web_port))
+            self.web_s.bind(('', self.web_port))
+            #Don't expect connections from more than 1 web-service.
+            self.web_s.listen(1)
+            print "Stitch-cp web-service port ready to receive connections....."
+            conn, addr = self.web_s.accept()
+            print "Received connection from web-service %s" % (str(addr))
         except IOError as e:
             #print and error and return. Ideally we want to wait for 
+            print "Web-service listen socket returned error %s" % (e)
             return
 
-i       #send the register to the web service
+       #send the register to the web service
         
         #wait for updates from the web service
         tmp_json_data = ''
         json_data = '' 
         while (1):
             try:
-                data = self.web_s.recv(1024)
+                data = conn.recv(1024)
+                if (data is None) or (len(data) == 0):
+                    print "Closing connection to %s" % (str(addr))
+                    conn.close()
+                    print "Waiting for a new connection "
+                    conn, addr = self.web_s.accept()
+
 
                 #keep appending to the temporary JSON data till we 
                 #receive end-of-message marker.
-                "".join((tmp_json_data, data))
+                tmp_json_data = "".join((tmp_json_data, data))
+                print tmp_json_data
 
                 if self.end in tmp_json_data:
                     #found the end of the message.
