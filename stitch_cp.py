@@ -38,7 +38,7 @@ if __name__=='__main__':
         stitch_dp = stitch_dp,\
         stitch_device_table = stitch_table)
 
-    cli = StitchDPCLI()
+    cli = StitchDPCLI(stitch_dp)
 
     #start the threads.
     stitch_ws.daemon = True

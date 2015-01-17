@@ -21,6 +21,8 @@ class StitchWebService (threading.Thread):
 
     def update_device_in_dp(self, device):
         #Generate command strings to update the stitch DP.
+        print "Adbout to update device in DP"
+        self.stitch_dp.add_device(device)
         return None
 
     def handle_msg(self, json_data):
