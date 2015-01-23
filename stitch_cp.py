@@ -5,6 +5,7 @@
 import os
 import sys
 import socket
+import stitch_log as LOG
 from optparse import OptionParser
 from click_intf import StitchClick
 from stitch_webservice_intf import StitchWebService
@@ -14,6 +15,9 @@ from stitch_dp_cli import StitchDPCLI
 
 #main function
 if __name__=='__main__':
+
+    #initialize the logger
+    LOG.logger_init('stitch_cp.log')
 
     parser = OptionParser(usage="%prog [options]")
     parser.add_option("-i", "--ip-address", action="store", type = "string",

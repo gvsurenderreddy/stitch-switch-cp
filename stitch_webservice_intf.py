@@ -3,6 +3,7 @@ import threading
 import netaddr
 import json
 import socket
+import logging 
 from click_intf import StitchClick
 from stitch_device import StitchDevice
 
@@ -18,10 +19,12 @@ class StitchWebService (threading.Thread):
         self.end = "Stitch-msg-end"
         self.stitch_dp = stitch_dp
         self.stitch_device_table = stitch_device_table
+        self.logger = logging.getLogger("StitchWebService")
+        self.logger.setLevel(logging.DEBUG)
 
     def update_device_in_dp(self, device):
         #Generate command strings to update the stitch DP.
-        print "Adbout to update device in DP"
+        self.logger.debug("Adbout to update device in DP")
         self.stitch_dp.add_device(device)
         return None
 
@@ -31,10 +34,11 @@ class StitchWebService (threading.Thread):
             device_id = device_dic[self.DEVICE_ID_FIELD]
             ip_addr = device_dic[self.IP_ADDR_FIELD]
             white_list = device_dic[self.WHITELIST_FIELD]
-            print "Received device info: device_id:%s, ip_addr:%s" % (device_id,
-            ip_addr)
+            self.logger.debug("Received device info: device_id:%s, ip_addr:%s\
+            " % (device_id, ip_addr))
         except AttributeError as e:
-            print "Looks a like a problem with the JSON message:%s" % (e)
+            self.logger.error("Looks a like a problem with the JSON\
+            message:%s" % (e))
             return
         #check if the device exists.
         device = self.stitch_device_table.get_device(device_id)
@@ -59,12 +63,15 @@ class StitchWebService (threading.Thread):
             self.web_s.bind(('', self.web_port))
             #Don't expect connections from more than 1 web-service.
             self.web_s.listen(1)
-            print "Stitch-cp web-service port ready to receive connections....."
+            self.logger.info("Stitch-cp web-service port ready to receive\
+             connections.....")
             conn, addr = self.web_s.accept()
-            print "Received connection from web-service %s" % (str(addr))
+            self.logger.info("Received connection from web-service %s"\
+            % (str(addr)))
         except IOError as e:
             #print and error and return. Ideally we want to wait for 
-            print "Web-service listen socket returned error %s" % (e)
+            self.logger.error("Web-service listen socket returned error\
+            %s" % (e))
             return
 
        #send the register to the web service
@@ -76,16 +83,17 @@ class StitchWebService (threading.Thread):
             try:
                 data = conn.recv(1024)
                 if (data is None) or (len(data) == 0):
-                    print "Closing connection to %s" % (str(addr))
+                    self.logger.info("Closing connection to %s" %\
+                    (str(addr)))
                     conn.close()
-                    print "Waiting for a new connection "
+                    self.logger.info("Waiting for a new connection ")
                     conn, addr = self.web_s.accept()
 
 
                 #keep appending to the temporary JSON data till we 
                 #receive end-of-message marker.
                 tmp_json_data = "".join((tmp_json_data, data))
-                print tmp_json_data
+                self.logger.debug(tmp_json_data)
 
                 if self.end in tmp_json_data:
                     #found the end of the message.
@@ -98,7 +106,8 @@ class StitchWebService (threading.Thread):
                     #process the JSON data 
                     self.handle_msg(json_data)
             except IOError:
-                print "Connection to stitch web-service closed."
+                self.logger.error("Connection to stitch web-service\
+                closed.")
                 return
                 
                 

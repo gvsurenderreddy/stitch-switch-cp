@@ -1,15 +1,20 @@
 import netaddr as net_ip
+import logging
 
 class StitchDeviceAdj:
     def __init__(self, ip_addr, port):
         self.ip_addr = ip_addr
         self.port = port
+        self.logger = logging.getLogger("StitchDeviceAdj")
+        self.logger.setLevel(logging.DEBUG)
 
 class StitchDevice:
     def __init__(self, device_id, ip6_addr):
         self.device_id = device_id
         self.ip6_addr = net_ip.IPNetwork(ip6_addr)
         self.whitelist = {}
+        self.logger = logging.getLogger("StitchDevice")
+        self.logger.setLevel(logging.DEBUG)
 
 
     def add_device_access(self, device):
@@ -23,7 +28,7 @@ class StitchDevice:
                 #devices belongs to a different netowrk, add it explicitly to the white list
                 self.whitelist[device.device_it] = device
         except TypeError as e:
-            print "Error using device handle %s" % (e)
+           self.logger.error("Error using device handle %s" % (e))
 
     def set_ip_addr(self, ip_addr):
         self.ip6_addr = net_ip.IPNetwork(ip_addr)

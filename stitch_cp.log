@@ -1,0 +1,8 @@
+2015-01-22 23:14:04,013 - root - INFO-        Stitch logger initialization complete
+2015-01-22 23:14:04,015 - StitchClick - DEBUG-        Click::ControlSocket/1.3
+
+2015-01-22 23:14:04,016 - StitchWebService - INFO-        Stitch-cp web-service port ready to receive             connections.....
+2015-01-22 23:14:13,728 - StitchDPCLI - DEBUG-        command:READ stitch_device_table.table
+
+2015-01-22 23:14:13,728 - StitchClick - DEBUG-        Trying to send command READ stitch_device_table.table
+ to CLICK
