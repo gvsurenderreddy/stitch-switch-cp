@@ -15,3 +15,12 @@ WRITE vlan_table.config VLAN 10, NETWORK 192.168.75.12/24, PORT 0
 ***CONFIGURING DEFAULT ROUTE*****
 WRITE vlan_table.default_route DEFAULT_GW 192.168.75.1
 
+***READING DEVICE TABLE****
+READ stitch_device_table.table
+
+***READ ARP TABLE***
+READ arp_table.table
+
+***READ FLOW TABLE***
+READ flow_table.table
+
